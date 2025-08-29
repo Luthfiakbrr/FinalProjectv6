@@ -36,8 +36,7 @@ public class LoginPage {
         passwordInput.clear();
         passwordInput.sendKeys(password);
 
-        WebElement loginBtn = wait.until(ExpectedConditions.elementToBeClickable(loginButton));
-        loginBtn.click();
+        wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
     }
 
     public boolean isAtHomePage() {

@@ -26,7 +26,6 @@ public class InventoryPage {
         return !driver.findElements(inventoryList).isEmpty();
     }
 
-    // disamakan namanya dengan di step
     public void addFirstProductToCart() {
         wait.until(ExpectedConditions.elementToBeClickable(addToCartFirst)).click();
     }
@@ -34,7 +33,7 @@ public class InventoryPage {
     public String cartCount() {
         return driver.findElements(cartBadge).isEmpty()
                 ? "0"
-                : driver.findElement(cartBadge).getText();
+                : wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
     }
 
     public void goToCart() {

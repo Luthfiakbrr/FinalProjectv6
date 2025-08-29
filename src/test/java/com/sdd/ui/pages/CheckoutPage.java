@@ -32,14 +32,13 @@ public class CheckoutPage {
     public void checkout(String fn, String ln, String postalCode) {
         wait.until(ExpectedConditions.elementToBeClickable(checkoutBtn)).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstName)).sendKeys(fn);
-        driver.findElement(lastName).sendKeys(ln);
-        driver.findElement(this.postal).sendKeys(postalCode);
-        driver.findElement(continueBtn).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(lastName)).sendKeys(ln);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(postal)).sendKeys(postalCode);
+        wait.until(ExpectedConditions.elementToBeClickable(continueBtn)).click();
         wait.until(ExpectedConditions.elementToBeClickable(finishBtn)).click();
     }
 
     public boolean isOrderComplete() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(completeText));
-        return !driver.findElements(completeText).isEmpty();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(completeText)).isDisplayed();
     }
 }

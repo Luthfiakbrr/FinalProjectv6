@@ -28,6 +28,6 @@ public class CartPage {
     }
 
     public boolean isAtCartPage() {
-        return !driver.findElements(checkoutBtn).isEmpty();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(checkoutBtn)).isDisplayed();
     }
 }
