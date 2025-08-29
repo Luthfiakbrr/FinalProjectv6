@@ -1,0 +1,97 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.11.2'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    cucumberVersion = '7.18.1'
+    seleniumVersion = '4.25.0'
+    restAssuredVersion = '5.5.0'
+    webdriverManagerVersion = '5.9.2'
+    allureVersion = '2.24.0'
+    junitVersion = '4.13.2'
+}
+
+dependencies {
+    // Cucumber + JUnit 4
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+    testImplementation "junit:junit:${junitVersion}"
+
+    // Selenium (Web UI)
+    testImplementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
+    testImplementation "io.github.bonigarcia:webdrivermanager:${webdriverManagerVersion}"
+
+    // RestAssured (API)
+    testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+    testImplementation "org.json:json:20240303"
+
+    // Assertions
+    testImplementation "org.assertj:assertj-core:3.26.3"
+
+    // Allure reporting (JUnit 4 + Cucumber7)
+    testImplementation "io.qameta.allure:allure-junit4:${allureVersion}"
+    testImplementation "io.qameta.allure:allure-cucumber7-jvm:2.21.0"
+}
+
+test {
+    useJUnit() // ✅ ganti jadi JUnit 4
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+allure {
+    version = "${allureVersion}"
+    autoconfigure = true
+    aspectjweaver = true
+    //clean = true
+}
+
+tasks.named("allureReport") {
+    doFirst {
+        delete("${buildDir}/reports/allure-report")
+    }
+}
+
+// Custom test tasks
+tasks.register('apiTest', Test) {
+    group = 'verification'
+    description = 'Run Cucumber API tests (@api)'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/runners/ApiTestRunner*'
+    useJUnit() // ✅ ganti TestNG -> JUnit
+}
+
+tasks.register('webTest', Test) {
+    group = 'verification'
+    description = 'Run Cucumber Web tests (@web)'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include '**/runners/WebTestRunner*'
+    useJUnit() // ✅ ganti TestNG -> JUnit
+}
+
+tasks.register('combinedTest', Test) {
+    useJUnit()
+    description = "Run combined API + UI cucumber tests"
+    group = "verification"
+
+    // set runner
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    // filter untuk hanya jalanin CombinedTestRunner
+    include '**/CombinedTestRunner.class'
+
+    // supaya report allure ikut ter-generate
+    finalizedBy 'allureReport'
+}
