@@ -2,9 +2,15 @@ package com.sdd.ui.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class LoginPage {
     private WebDriver driver;
+    private WebDriverWait wait;
 
     private By usernameField = By.id("user-name");
     private By passwordField = By.id("password");
@@ -14,6 +20,7 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void open() {
@@ -21,18 +28,23 @@ public class LoginPage {
     }
 
     public void login(String username, String password) {
-        driver.findElement(usernameField).clear();
-        driver.findElement(usernameField).sendKeys(username);
-        driver.findElement(passwordField).clear();
-        driver.findElement(passwordField).sendKeys(password);
-        driver.findElement(loginButton).click();
+        WebElement usernameInput = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField));
+        usernameInput.clear();
+        usernameInput.sendKeys(username);
+
+        WebElement passwordInput = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordField));
+        passwordInput.clear();
+        passwordInput.sendKeys(password);
+
+        WebElement loginBtn = wait.until(ExpectedConditions.elementToBeClickable(loginButton));
+        loginBtn.click();
     }
 
     public boolean isAtHomePage() {
-        return driver.findElements(inventoryPage).size() > 0;
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryPage)).isDisplayed();
     }
 
     public String getErrorMessage() {
-        return driver.findElement(errorMessage).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
     }
 }
