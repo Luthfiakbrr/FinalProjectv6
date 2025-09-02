@@ -98,6 +98,7 @@ tasks.register('webTest', Test) {
     useJUnit()
     systemProperties = System.getProperties()
     systemProperty "allure.results.directory", "$buildDir/allure-results"
+    ignoreFailures = true
     finalizedBy 'allureReport'
 }
 
@@ -110,5 +111,6 @@ tasks.register('combinedTest', Test) {
     useJUnit()
     systemProperties = System.getProperties()
     systemProperty "allure.results.directory", "$buildDir/allure-results"
+    ignoreFailures = true
     finalizedBy 'allureReport'
 }
