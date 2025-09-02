@@ -2,45 +2,50 @@ package com.sdd.ui.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+/**
+ * Inventory Page - halaman utama setelah login
+ */
 public class InventoryPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    private By inventoryList = By.className("inventory_list");
-    private By addToCartFirst = By.cssSelector(".inventory_item button");
-    private By cartBadge = By.className("shopping_cart_badge");
-    private By cartLink = By.className("shopping_cart_link");
+    private By firstAddToCartButton = By.cssSelector(".inventory_item button.btn_primary");
+    private By backpackAddButton = By.id("add-to-cart-sauce-labs-backpack");
+    private By cartIcon = By.className("shopping_cart_link");
+    private By inventoryContainer = By.id("inventory_container");
 
-    public InventoryPage(WebDriver d) {
-        this.driver = d;
-        this.wait = new WebDriverWait(d, Duration.ofSeconds(10));
-    }
-
-    public boolean isVisible() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryList));
-        return !driver.findElements(inventoryList).isEmpty();
+    public InventoryPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public void addFirstProductToCart() {
-        wait.until(ExpectedConditions.elementToBeClickable(addToCartFirst)).click();
+        WebElement addBtn = wait.until(ExpectedConditions.elementToBeClickable(firstAddToCartButton));
+        addBtn.click();
     }
 
-    public String cartCount() {
-        return driver.findElements(cartBadge).isEmpty()
-                ? "0"
-                : wait.until(ExpectedConditions.visibilityOfElementLocated(cartBadge)).getText();
+    public void addBackpackToCart() {
+        WebElement addBackpack = wait.until(ExpectedConditions.elementToBeClickable(backpackAddButton));
+        addBackpack.click();
+    }
+
+    public String getCartCount() {
+        WebElement cart = wait.until(ExpectedConditions.visibilityOfElementLocated(cartIcon));
+        return cart.getText().trim();
     }
 
     public void goToCart() {
-        wait.until(ExpectedConditions.elementToBeClickable(cartLink)).click();
+        WebElement cart = wait.until(ExpectedConditions.elementToBeClickable(cartIcon));
+        cart.click();
     }
 
-    public boolean isAtInventoryPage() {
-        return isVisible();
+    public boolean isOnInventoryPage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(inventoryContainer)).isDisplayed();
     }
 }

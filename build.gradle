@@ -17,42 +17,61 @@ ext {
     webdriverManagerVersion = '5.9.2'
     allureVersion = '2.24.0'
     junitVersion = '4.13.2'
+    assertjVersion = '3.26.3'
+    jsonVersion = '20240303'
 }
 
 dependencies {
-    // Cucumber + JUnit 4
+    // ✅ Cucumber + JUnit 4
     testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
     testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
     testImplementation "junit:junit:${junitVersion}"
 
-    // Selenium (Web UI)
+    // ✅ Selenium (Web UI) + WebDriverManager
     testImplementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
     testImplementation "io.github.bonigarcia:webdrivermanager:${webdriverManagerVersion}"
 
-    // RestAssured (API)
+    // ✅ RestAssured (API) + JSON
     testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
-    testImplementation "org.json:json:20240303"
+    testImplementation "org.json:json:${jsonVersion}"
 
-    // Assertions
-    testImplementation "org.assertj:assertj-core:3.26.3"
+    // ✅ Assertions
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
-    // Allure reporting (JUnit 4 + Cucumber7)
+    // ✅ Allure integration (JUnit4 + Cucumber7)
     testImplementation "io.qameta.allure:allure-junit4:${allureVersion}"
     testImplementation "io.qameta.allure:allure-cucumber7-jvm:2.21.0"
 }
 
 test {
-    useJUnit() // ✅ ganti jadi JUnit 4
+    useJUnit() // pakai JUnit4
     testLogging {
         events "passed", "skipped", "failed"
     }
 }
 
+test {
+    useJUnitPlatform()
+    systemProperty "allure.results.directory", "$buildDir/allure-results"
+
+    doLast {
+        def envFile = file("$buildDir/allure-results/environment.properties")
+        envFile.text = """\
+Browser=Chrome 139
+Environment=Staging
+BaseURL=https://www.saucedemo.com
+APIBaseURL=https://dummyapi.io
+OS=${System.getProperty("os.name")}
+Tester=Luthfi Akbar
+"""
+    }
+}
+
+
 allure {
     version = "${allureVersion}"
     autoconfigure = true
     aspectjweaver = true
-    //clean = true
 }
 
 tasks.named("allureReport") {
@@ -61,14 +80,14 @@ tasks.named("allureReport") {
     }
 }
 
-// Custom test tasks
+// ✅ Custom test tasks
 tasks.register('apiTest', Test) {
     group = 'verification'
     description = 'Run Cucumber API tests (@api)'
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     include '**/runners/ApiTestRunner*'
-    useJUnit() // ✅ ganti TestNG -> JUnit
+    useJUnit()
 }
 
 tasks.register('webTest', Test) {
@@ -77,21 +96,15 @@ tasks.register('webTest', Test) {
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     include '**/runners/WebTestRunner*'
-    useJUnit() // ✅ ganti TestNG -> JUnit
+    useJUnit()
 }
 
 tasks.register('combinedTest', Test) {
-    useJUnit()
+    group = 'verification'
     description = "Run combined API + UI cucumber tests"
-    group = "verification"
-
-    // set runner
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
-
-    // filter untuk hanya jalanin CombinedTestRunner
-    include '**/CombinedTestRunner.class'
-
-    // supaya report allure ikut ter-generate
+    include '**/runners/CombinedTestRunner*'
+    useJUnit()
     finalizedBy 'allureReport'
 }
