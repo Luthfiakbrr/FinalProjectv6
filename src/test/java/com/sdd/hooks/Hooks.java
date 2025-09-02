@@ -2,10 +2,10 @@ package com.sdd.hooks;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class Hooks {
 
@@ -13,24 +13,25 @@ public class Hooks {
 
     @Before
     public void beforeScenario() {
-        // ✅ otomatis download driver yg sesuai
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--incognito");              // buka di incognito mode
-        options.addArguments("--disable-notifications");  // blokir notifikasi
-        options.addArguments("--disable-popup-blocking"); // cegah popup
-        options.addArguments("--remote-allow-origins=*"); // biar kompatibel versi Chrome terbaru
+        // cek apakah jalan di CI/CD (GitHub Actions punya env CI=true)
+        if (System.getenv("CI") != null) {
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--window-size=1920,1080");
+        }
 
         driver = new ChromeDriver(options);
-        driver.manage().window().maximize();
     }
 
     @After
     public void afterScenario() {
         if (driver != null) {
             driver.quit();
-            driver = null;
         }
     }
 

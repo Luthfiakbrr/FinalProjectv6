@@ -30,6 +30,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: 🖥️ Install Google Chrome
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+
       - name: 🔑 Grant execute permission for Gradlew
         run: chmod +x gradlew
 

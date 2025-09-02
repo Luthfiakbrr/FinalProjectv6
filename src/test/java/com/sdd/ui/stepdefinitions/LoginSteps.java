@@ -85,6 +85,10 @@ public class LoginSteps {
         new PopupHandler(driver).handlePopupIfPresent();
 
         checkoutPage.fillCheckoutForm(firstName, lastName, postalCode);
+
+        // Handle popup setelah login
+        new PopupHandler(driver).handlePopupIfPresent();
+
         checkoutPage.clickContinue();
         checkoutPage.clickFinish();
 
