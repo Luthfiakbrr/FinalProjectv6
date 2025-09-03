@@ -3,9 +3,7 @@ package com.sdd.hooks;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import io.github.bonigarcia.wdm.WebDriverManager;
+import com.sdd.ui.WebDriverManager;
 
 public class Hooks {
 
@@ -13,26 +11,14 @@ public class Hooks {
 
     @Before
     public void beforeScenario() {
-        WebDriverManager.chromedriver().setup();
-
-        ChromeOptions options = new ChromeOptions();
-        // cek apakah jalan di CI/CD (GitHub Actions punya env CI=true)
-        if (System.getenv("CI") != null) {
-            options.addArguments("--headless=new");
-            options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
-            options.addArguments("--disable-gpu");
-            options.addArguments("--window-size=1920,1080");
-        }
-
-        driver = new ChromeDriver(options);
+        // Ambil driver dari WebDriverManager (bisa Chrome, Firefox, Edge, tergantung -Dbrowser)
+        driver = WebDriverManager.getDriver();
     }
 
     @After
     public void afterScenario() {
-        if (driver != null) {
-            driver.quit();
-        }
+        // Tutup driver setelah scenario selesai
+        WebDriverManager.quitDriver();
     }
 
     public static WebDriver getDriver() {

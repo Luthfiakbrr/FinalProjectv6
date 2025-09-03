@@ -30,10 +30,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: 🖥️ Install Google Chrome
+      # Install browser dependencies
+      - name: 🖥️ Install Browsers (Chrome + Firefox + Edge Chromium)
         run: |
-            sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable firefox
+          # Edge (chromium) install
+          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+          sudo install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/
+          sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
+          sudo apt-get update
+          sudo apt-get install -y microsoft-edge-stable
 
       - name: 🔑 Grant execute permission for Gradlew
         run: chmod +x gradlew
@@ -48,16 +55,16 @@ jobs:
       - name: 🧪 Run API Tests
         run: ./gradlew apiTest --stacktrace
 
-      - name: 🌐 Run Web Tests
-        run: ./gradlew webTest --stacktrace
+      - name: 🌐 Run Web Tests (Headless Chrome)
+        run: ./gradlew webTest -Dheadless=true -Dbrowser=chrome --stacktrace
 
-      - name: 🔄 Run Combined Tests
-        run: ./gradlew combinedTest --stacktrace
+      - name: 🔄 Run Combined Tests (Headless Chrome)
+        run: ./gradlew combinedTest -Dheadless=true -Dbrowser=chrome --stacktrace
 
       - name: 📝 Create Allure Environment & Categories
         run: |
           mkdir -p build/allure-results
-          echo "Browser=Chrome 139" >> build/allure-results/environment.properties
+          echo "Browser=Chrome (Headless)" >> build/allure-results/environment.properties
           echo "Environment=CI" >> build/allure-results/environment.properties
           echo "APIBaseURL=https://dummyapi.io" >> build/allure-results/environment.properties
           echo "WebBaseURL=https://www.saucedemo.com" >> build/allure-results/environment.properties
